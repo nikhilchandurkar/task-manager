@@ -52,7 +52,7 @@ function NavbarContent() {
             </div>
           </div>
           <div className="flex items-center">
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
 
             <div className="ml-3 relative">
               <div>
