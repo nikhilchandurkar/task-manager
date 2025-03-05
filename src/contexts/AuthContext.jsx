@@ -180,7 +180,7 @@ import { toast } from "react-toastify"
 const AuthContext = createContext(null)
 
 export function useAuth() {
-  if (!auth || !auth.currentUser) return <p>Loading...</p>;
+  // if (!auth || !auth.currentUser) return <p>Loading...</p>;
   return useContext(AuthContext)
 
 }

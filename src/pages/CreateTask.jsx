@@ -573,121 +573,121 @@ function CreateTask() {
     fetchTeams();
   }, []);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  //   if (!currentUser) {
-  //     alert("You must be logged in to create a task.");
-  //     return;
-  //   }
+    if (!currentUser) {
+      alert("You must be logged in to create a task.");
+      return;
+    }
 
-  //   if (!title.trim()) {
-  //     alert("Task title is required.");
-  //     return;
-  //   }
+    if (!title.trim()) {
+      alert("Task title is required.");
+      return;
+    }
 
-  //   if (!assignedTeam) {
-  //     alert("Please assign the task to a team.");
-  //     return;
-  //   }
+    if (!assignedTeam) {
+      alert("Please assign the task to a team.");
+      return;
+    }
 
-  //   // Ensure currentUser.uid exists before checking teamCreators
-  //   if (!teamCreators[assignedTeam] || teamCreators[assignedTeam] !== currentUser.uid) {
-  //     alert("You can only assign tasks to teams you created.");
-  //     return;
-  //   }
+    // Ensure currentUser.uid exists before checking teamCreators
+    if (!teamCreators[assignedTeam] || teamCreators[assignedTeam] !== currentUser.uid) {
+      alert("You can only assign tasks to teams you created.");
+      return;
+    }
 
-  //   const newTask = {
-  //     title,
-  //     description,
-  //     assignedTo: assignedTeam,
-  //     priority,
-  //     dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-  //     status: "todo",
-  //     createdBy: currentUser.uid,
-  //     createdAt: serverTimestamp(),
-  //   };
+    const newTask = {
+      title,
+      description,
+      assignedTo: assignedTeam,
+      priority,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+      status: "todo",
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp(),
+    };
 
-  //   try {
-  //     await addDoc(collection(db, "tasks"), newTask);
-  //     setTitle("");
-  //     setDescription("");
-  //     setAssignedTeam("");
-  //     setPriority("medium");
-  //     setDueDate("");
-  //     alert("Task created successfully!");
-  //   } catch (error) {
-  //     console.error("Error creating task:", error);
-  //     alert("Failed to create task.");
-  //   }
-  // };
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!currentUser) {
-    alert("You must be logged in to create a task.");
-    return;
-  }
-
-  if (!title.trim()) {
-    alert("Task title is required.");
-    return;
-  }
-
-  if (!assignedTeam) {
-    alert("Please assign the task to a team.");
-    return;
-  }
-
-  if (!teamCreators[assignedTeam] || teamCreators[assignedTeam] !== currentUser.uid) {
-    alert("You can only assign tasks to teams you created.");
-    return;
-  }
-
-  const newTask = {
-    title,
-    description,
-    assignedTo: assignedTeam,
-    priority,
-    dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-    status: "todo",
-    createdBy: currentUser.uid,
-    createdAt: serverTimestamp(),
+    try {
+      await addDoc(collection(db, "tasks"), newTask);
+      setTitle("");
+      setDescription("");
+      setAssignedTeam("");
+      setPriority("medium");
+      setDueDate("");
+      alert("Task created successfully!");
+    } catch (error) {
+      console.error("Error creating task:", error);
+      alert("Failed to create task.");
+    }
   };
 
-  try {
-    await addDoc(collection(db, "tasks"), newTask);
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
 
-    // Fetch team members' emails
-    const teamSnapshot = await getDocs(collection(db, `teams/${assignedTeam}/members`));
-    const teamMembers = teamSnapshot.docs.map(doc => doc.data().email);
+//   if (!currentUser) {
+//     alert("You must be logged in to create a task.");
+//     return;
+//   }
 
-    // Send an email to all team members
-    teamMembers.forEach(async (email) => {
-      await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          taskTitle: title,
-          createdBy: currentUser.email,
-        }),
-      });
-    });
+//   if (!title.trim()) {
+//     alert("Task title is required.");
+//     return;
+//   }
 
-    setTitle("");
-    setDescription("");
-    setAssignedTeam("");
-    setPriority("medium");
-    setDueDate("");
-    // alert("Task created successfully");
-    toast("task created")
-  } catch (error) {
-    console.error("Error creating task:", error);
-    alert("Failed to create task.");
-  }
-};
+//   if (!assignedTeam) {
+//     alert("Please assign the task to a team.");
+//     return;
+//   }
+
+//   if (!teamCreators[assignedTeam] || teamCreators[assignedTeam] !== currentUser.uid) {
+//     alert("You can only assign tasks to teams you created.");
+//     return;
+//   }
+
+//   const newTask = {
+//     title,
+//     description,
+//     assignedTo: assignedTeam,
+//     priority,
+//     dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+//     status: "todo",
+//     createdBy: currentUser.uid,
+//     createdAt: serverTimestamp(),
+//   };
+
+//   try {
+//     await addDoc(collection(db, "tasks"), newTask);
+
+//     // Fetch team members' emails
+//     const teamSnapshot = await getDocs(collection(db, `teams/${assignedTeam}/members`));
+//     const teamMembers = teamSnapshot.docs.map(doc => doc.data().email);
+
+//     // Send an email to all team members
+//     teamMembers.forEach(async (email) => {
+//       await fetch("/api/send-email", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           email,
+//           taskTitle: title,
+//           createdBy: currentUser.email,
+//         }),
+//       });
+//     });
+
+//     setTitle("");
+//     setDescription("");
+//     setAssignedTeam("");
+//     setPriority("medium");
+//     setDueDate("");
+//     // alert("Task created successfully");
+//     toast("task created")
+//   } catch (error) {
+//     console.error("Error creating task:", error);
+//     alert("Failed to create task.");
+//   }
+// };
 
 
 
