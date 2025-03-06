@@ -2,8 +2,12 @@
 
 
 
+
+
+// "use client";
+
 // import { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
+// import { useRouter } from "next/navigation";
 // import { useAuth } from "../contexts/AuthContext";
 // import { FcGoogle } from "react-icons/fc";
 
@@ -12,19 +16,18 @@
 //   const [password, setPassword] = useState("");
 //   const [error, setError] = useState("");
 //   const [loading, setLoading] = useState(false);
+//   const router = useRouter(); // Use Next.js router
+
 //   const { login, loginWithGoogle } = useAuth();
-//   const navigate = useNavigate();
 
 //   async function handleSubmit(e) {
 //     e.preventDefault();
-
 //     try {
 //       setError("");
 //       setLoading(true);
 //       await login(email, password);
-//       navigate("/dashboard"); // Ensure dashboard route exists
+//       router.push("/"); // Use router.push instead of navigate()
 //     } catch (error) {
-//       console.error("Login Error:", error);
 //       setError("Failed to log in");
 //     } finally {
 //       setLoading(false);
@@ -36,9 +39,8 @@
 //       setError("");
 //       setLoading(true);
 //       await loginWithGoogle();
-//       navigate("/dashboard"); // Ensure dashboard route exists
+//       router.push("/");
 //     } catch (error) {
-//       console.error("Google Login Error:", error);
 //       setError("Failed to log in with Google");
 //     } finally {
 //       setLoading(false);
@@ -49,18 +51,10 @@
 //     <div className="min-h-screen flex items-center justify-center bg-gray-100">
 //       <div className="bg-white p-8 rounded-lg shadow-md w-96">
 //         <h2 className="text-2xl font-bold mb-6 text-center">Log In</h2>
-
-//         {error && (
-//           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-//             {error}
-//           </div>
-//         )}
-
+//         {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 //         <form onSubmit={handleSubmit} className="space-y-4">
 //           <div>
-//             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-//               Email
-//             </label>
+//             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
 //             <input
 //               type="email"
 //               id="email"
@@ -70,11 +64,8 @@
 //               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
 //             />
 //           </div>
-
 //           <div>
-//             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-//               Password
-//             </label>
+//             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
 //             <input
 //               type="password"
 //               id="password"
@@ -84,7 +75,6 @@
 //               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
 //             />
 //           </div>
-
 //           <button
 //             type="submit"
 //             disabled={loading}
@@ -93,17 +83,7 @@
 //             {loading ? "Logging in..." : "Log In"}
 //           </button>
 //         </form>
-
-//         <div className="mt-4">
-//           <div className="relative">
-//             <div className="absolute inset-0 flex items-center">
-//               <div className="w-full border-t border-gray-300"></div>
-//             </div>
-//             <div className="relative flex justify-center text-sm">
-//               <span className="px-2 bg-white text-gray-500">Or continue with</span>
-//             </div>
-//           </div>
-
+//         <div className="mt-4 text-center">
 //           <button
 //             onClick={handleGoogleLogin}
 //             disabled={loading}
@@ -112,15 +92,6 @@
 //             <FcGoogle className="h-5 w-5 mr-2" />
 //             Google
 //           </button>
-//         </div>
-
-//         <div className="mt-6 text-center text-sm">
-//           <p>
-//             Don't have an account?{" "}
-//             <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-//               Sign up
-//             </Link>
-//           </p>
 //         </div>
 //       </div>
 //     </div>
@@ -136,11 +107,10 @@
 
 
 
-
 "use client";
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 
@@ -149,9 +119,19 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [authReady, setAuthReady] = useState(false);
+  const router = useRouter();
 
-  const { login, loginWithGoogle } = useAuth();
+  const auth = useAuth(); // Get Auth context
+
+  // Ensure auth is accessed only after mounting
+  useEffect(() => {
+    setAuthReady(true);
+  }, []);
+
+  if (!authReady) return null; // Prevents static pre-render issues
+
+  const { login, loginWithGoogle } = auth;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -159,7 +139,7 @@ function Login() {
       setError("");
       setLoading(true);
       await login(email, password);
-      navigate("/");
+      router.push("/");
     } catch (error) {
       setError("Failed to log in");
     } finally {
@@ -172,7 +152,7 @@ function Login() {
       setError("");
       setLoading(true);
       await loginWithGoogle();
-      navigate("/");
+      router.push("/");
     } catch (error) {
       setError("Failed to log in with Google");
     } finally {
@@ -184,14 +164,10 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Log In</h2>
-
         {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
               id="email"
@@ -201,11 +177,8 @@ function Login() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <input
               type="password"
               id="password"
@@ -215,7 +188,6 @@ function Login() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -224,7 +196,6 @@ function Login() {
             {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
-
         <div className="mt-4 text-center">
           <button
             onClick={handleGoogleLogin}
@@ -234,15 +205,6 @@ function Login() {
             <FcGoogle className="h-5 w-5 mr-2" />
             Google
           </button>
-        </div>
-
-        <div className="mt-6 text-center text-sm">
-          <p>
-            Don't have an account?{" "}
-            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign up
-            </Link>
-          </p>
         </div>
       </div>
     </div>

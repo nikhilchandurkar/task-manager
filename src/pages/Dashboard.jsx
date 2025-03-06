@@ -1,5 +1,6 @@
 
-  
+
+
 
 
 // "use client";
@@ -8,14 +9,19 @@
 // import { useAuth } from "../contexts/AuthContext";
 // import { db } from "../firebase";
 // import { collection, query, onSnapshot, updateDoc, doc } from "firebase/firestore";
-// import Navbar from "../components/Navbar"; 
+// import Navbar from "../components/Navbar";
 
 // function DashboardContent() {
-//   const { currentUser } = useAuth();
+//   const auth = useAuth() || null;
+//   const [currentUser, setCurrentUser] = useState(null);
 //   const [tasks, setTasks] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
-//   const [expandedTask, setExpandedTask] = useState(null); 
+//   const [expandedTask, setExpandedTask] = useState(null);
+
+//   useEffect(() => {
+//     setCurrentUser(auth?.currentUser || null); // Ensure currentUser is set only after auth is available
+//   }, [auth]);
 
 //   useEffect(() => {
 //     if (!currentUser) {
@@ -51,7 +57,7 @@
 //   }, [currentUser]);
 
 //   const updateTaskStatus = async (taskId, currentStatus) => {
-//     if (currentStatus === "completed") return; 
+//     if (currentStatus === "completed") return;
 //     try {
 //       const newStatus = "completed";
 
@@ -64,7 +70,7 @@
 //       const taskRef = doc(db, "tasks", taskId);
 //       await updateDoc(taskRef, { status: newStatus });
 
-//       console.log("Task marked as completed",taskRef);
+//       console.log("Task marked as completed", taskRef);
 //     } catch (error) {
 //       console.error("Error updating task status:", error);
 //     }
@@ -148,20 +154,32 @@
 
 
 
+
+
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase";
-import { collection, query, onSnapshot, updateDoc, doc, deleteDoc } from "firebase/firestore";
-import Navbar from "../components/Navbar"; 
+import { collection, query, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import Navbar from "../components/Navbar";
 
 function DashboardContent() {
-  const { currentUser } = useAuth();
+  const auth = useAuth();
+  const [currentUser, setCurrentUser] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedTask, setExpandedTask] = useState(null); 
+  const [expandedTask, setExpandedTask] = useState(null);
+
+  useEffect(() => {
+    if (auth?.currentUser) {
+      setCurrentUser(auth.currentUser);
+    } else {
+      setCurrentUser(null);
+    }
+  }, [auth]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -197,7 +215,7 @@ function DashboardContent() {
   }, [currentUser]);
 
   const updateTaskStatus = async (taskId, currentStatus) => {
-    if (currentStatus === "completed") return; 
+    if (currentStatus === "completed") return;
     try {
       const newStatus = "completed";
 
@@ -216,31 +234,13 @@ function DashboardContent() {
     }
   };
 
-  const deleteTask = async (taskId, creatorId) => {
-    // Only allow deletion if the current user is the creator of the task
-    // if (!currentUser || currentUser.uid !== creatorId) {
-    //   console.error("You do not have permission to delete this task");
-    //   return;
-    // }
-
-    try {
-      const taskRef = doc(db, "tasks", taskId);
-      await deleteDoc(taskRef);
-
-      // Optimistically remove the task from local state
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-
-      console.log("Task deleted successfully", taskId);
-    } catch (error) {
-      console.error("Error deleting task:", error);
-      // Optionally, show an error message to the user
-      setError("Failed to delete task. Please try again.");
-    }
-  };
-
   const toggleTaskDetails = (taskId) => {
     setExpandedTask(expandedTask === taskId ? null : taskId);
   };
+
+  if (!auth) {
+    return <p>Loading authentication...</p>; // Prevent errors if auth is still loading
+  }
 
   return (
     <>
@@ -264,20 +264,20 @@ function DashboardContent() {
             <ul className="space-y-4">
               {tasks.map((task) => (
                 <li key={task.id} className="p-4 bg-gray-50 rounded-lg shadow">
-                  <div className="flex items-center">
+                  <div className="flex justify-between items-center">
                     <button
                       onClick={() => toggleTaskDetails(task.id)}
-                      className="text-lg font-semibold text-left flex-grow focus:outline-none"
+                      className="text-lg font-semibold text-left w-full focus:outline-none"
                     >
                       {task.title}
                     </button>
 
-                    <span className="text-gray-700 font-medium mx-4">{task.assignTo}</span>
+                    <span className="text-gray-700 font-medium">{task.assignTo}</span>
 
                     <button
                       onClick={() => updateTaskStatus(task.id, task.status)}
-                      // disabled={task.status === "completed"}
-                      className={`mr-4 px-4 py-2 rounded-lg ${
+                      disabled={task.status === "completed"}
+                      className={`px-4 py-2 rounded-lg ${
                         task.status === "pending"
                           ? "bg-blue-600 hover:bg-blue-700 text-white"
                           : "bg-gray-400 text-gray-200 cursor-not-allowed"
@@ -285,16 +285,6 @@ function DashboardContent() {
                     >
                       {task.status === "pending" ? "Mark as Completed" : "Completed"}
                     </button>
-
-                    {/* Delete Button - Only show if current user is the creator */}
-                    {currentUser && currentUser.uid === task.creatorId && (
-                      <button
-                        onClick={() => deleteTask(task.id, task.creatorId)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        Delete
-                      </button>
-                    )}
                   </div>
 
                   {expandedTask === task.id && (
