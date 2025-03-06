@@ -469,7 +469,7 @@ function AddMemberModal({ isOpen, onClose, team }) {
                 </option>
                 {users.map((user) => (
                   <option key={user.id} value={user.id}>
-                    {user.displayName} ({user.email}) {/* ✅ FIXED: Using displayName */}
+                    {user.displayName} ({user.email}) 
                   </option>
                 ))}
               </select>

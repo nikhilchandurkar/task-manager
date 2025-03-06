@@ -1,6 +1,10 @@
 "use client"
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+
+
+
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from "./contexts/AuthContext"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -16,25 +20,26 @@ import CreateTask from "./pages/CreateTask"
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { currentUser, loading } = useAuth()
-
+  
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-      
-      Loading...
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
       </div>
+    )
   }
-
+  
   if (!currentUser) {
     return <Navigate to="/login" />
   }
-
+  
   return children
 }
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -70,13 +75,11 @@ function App() {
               </ProtectedRoute>
             }
           />
-
         </Routes>
-      </Router>
-      <ToastContainer position="bottom-right" />
+        <ToastContainer position="bottom-right" />
+      </BrowserRouter>
     </AuthProvider>
   )
 }
 
 export default App
-
